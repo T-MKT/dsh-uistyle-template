@@ -1,0 +1,34 @@
+/* Toolbar owns only the row geometry: one non-wrapping flex line whose items
+ * are separated by a fixed 8px gap. It paints no surface, border or shadow on
+ * purpose, so it can sit inside a Page, Card or Panel without stacking a second
+ * background; every colour therefore comes from the surrounding composition.
+ * `min-width: 0` on the bar and on its items keeps a long label from pushing
+ * the row wider than its parent — items may shrink, never grow. */
+.toolbar {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.toolbar > * {
+  min-width: 0;
+}
+
+.toolbar[data-align='start'] {
+  align-items: flex-start;
+}
+
+.toolbar[data-align='center'] {
+  align-items: center;
+}
+
+.toolbar[data-align='end'] {
+  align-items: flex-end;
+}
+
+.toolbar[data-align='stretch'] {
+  align-items: stretch;
+}

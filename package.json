@@ -1,0 +1,13 @@
+{
+  "name": "dsh-uistyle-template",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.24.0",
+  "description": "Typed design-token surface and layout components for DSH Web UI plugins",
+  "scripts": {
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "verify": "pnpm -r verify"
+  }
+}

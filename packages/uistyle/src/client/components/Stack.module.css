@@ -1,0 +1,8 @@
+/* Stack owns only the flex container. Direction, gap and alignment live in the
+ * inline style so a caller can override any of them, and `min-width: 0` keeps a
+ * wide child from stretching the stack past its parent instead of scrolling. */
+.stack {
+  display: flex;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
