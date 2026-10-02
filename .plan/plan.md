@@ -3,7 +3,7 @@
 > 本文档是本次编码的真源：确定后直接照着它编码；节点编号在编码期间保持不变（提交信息用它指明完成到哪）。
 > 状态：`- [ ]` 未完成 / `- [x]` 已完成。一个最小节点完成 = 其下全部要点已勾选，且「完成判据」成立。
 >
-> 进度（2026-10-02）：§3.1 ~ §3.6 全部完成。`pnpm -r build` / `pnpm -r typecheck` / `pnpm -r verify` 全绿；§3.5 冒烟在本机真 DSH（profile `web`）跑通，库渲染的组件经人工目视确认（明暗自适应、布局正常），profile 临时改动已逐字节回滚。提交：无（未提交，分支 `feat/start`）。
+> 进度（2026-10-02）：§3.1 ~ §3.6 全部完成。`pnpm -r build` / `pnpm -r typecheck` / `pnpm -r verify` 全绿；§3.5 冒烟在本机真 DSH（profile `web`）跑通，库渲染的组件经人工目视确认（明暗自适应、布局正常），profile 临时改动已逐字节回滚。提交：`feat(uistyle): 类型化 token 面与 6 个布局组件 (§3.1–§3.6)` + `docs: 补双语 README 与 COMPATIBLE_VERSION`（分支 `feat/start`，未 push）。
 >
 > **实现期修正**（与本文档正文不一致处以本块为准）：
 > 1. **`title` 与 `HTMLAttributes.title` 冲突**：`{ title?: ReactNode } & LayoutProps` 会求值为 `string & ReactNode`，JSX 标题直接 TS2322。Card / Page / SectionHeader 改为 `& Omit<LayoutProps, 'title'>`（`types.ts` 里已写明该陷阱）。
