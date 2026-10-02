@@ -162,4 +162,4 @@ The third check in `verify` is a **control group**: one deliberately misspelled 
 
 ## License
 
-MIT (see the `license` field in `package.json`; the repository does not ship a `LICENSE` file yet).
+[MIT](./LICENSE)

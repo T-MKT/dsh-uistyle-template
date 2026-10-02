@@ -162,4 +162,4 @@ pnpm -r verify      # 三重验证：消费端断言 + 参与编译确认 + 对�
 
 ## 许可证
 
-MIT（见 `package.json` 的 `license` 字段；仓库尚未附带 `LICENSE` 文件）。
+[MIT](./LICENSE)
