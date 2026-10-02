@@ -1,0 +1,8 @@
+# The dsh-uistyle-template bundle patch: one plugin row added to the host
+# composition. The row joins the Loader entry list, which is what makes the
+# package a servable client module: the Host side is a no-op `apply()`, and the
+# browser side serves lib/client.js into the boot graph for any plugin that
+# declares this package under `dsh.client.external`.
+- insert:
+    - id: dsh-uistyle-template
+      name: '@tak1208/dsh-uistyle-template'

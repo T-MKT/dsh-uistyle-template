@@ -1,7 +1,7 @@
 /**
  * Generate a typed token surface from tokens.json.
  *
- * Output (to src/):
+ * Output (to src/client/):
  *   tokens.ts — the token name union, the runtime constant map, per-token
  *               metadata, and typed helper accessors. Every helper takes a
  *               `TokenName`, so a misspelled token is a compile error.
@@ -155,7 +155,7 @@ ts.push('  el.style.setProperty(name, value);');
 ts.push('}');
 ts.push('');
 
-mkdirSync(new URL('src', root), { recursive: true });
-writeFileSync(new URL('src/tokens.ts', root), ts.join('\n'));
-console.log(`src/tokens.ts   ${ts.length} lines`);
+mkdirSync(new URL('src/client', root), { recursive: true });
+writeFileSync(new URL('src/client/tokens.ts', root), ts.join('\n'));
+console.log(`src/client/tokens.ts   ${ts.length} lines`);
 console.log(`tokens: ${tokens.length} (semantic ${semantic.length}, palette ${palette.length}, theme-varying ${themeVarying.length})`);

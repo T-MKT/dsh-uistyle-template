@@ -2,6 +2,16 @@
 
 > 本文档是本次编码的真源：确定后直接照着它编码；节点编号在编码期间保持不变（提交信息用它指明完成到哪）。
 > 状态：`- [ ]` 未完成 / `- [x]` 已完成。一个最小节点完成 = 其下全部要点已勾选，且「完成判据」成立。
+>
+> 进度（2026-10-02）：§3.1 ~ §3.6 全部完成。`pnpm -r build` / `pnpm -r typecheck` / `pnpm -r verify` 全绿；§3.5 冒烟在本机真 DSH（profile `web`）跑通，库渲染的组件经人工目视确认（明暗自适应、布局正常），profile 临时改动已逐字节回滚。提交：无（未提交，分支 `feat/start`）。
+>
+> **实现期修正**（与本文档正文不一致处以本块为准）：
+> 1. **`title` 与 `HTMLAttributes.title` 冲突**：`{ title?: ReactNode } & LayoutProps` 会求值为 `string & ReactNode`，JSX 标题直接 TS2322。Card / Page / SectionHeader 改为 `& Omit<LayoutProps, 'title'>`（`types.ts` 里已写明该陷阱）。
+> 2. **消费端类型走 `./client` 子路径**：包名裸 specifier 在 **运行时** 由扁平模块图归一化到 client 半区（`<pkg>/client` 与裸名等价），但 **类型** 上 `exports['.']` 指向 Host 半区（no-op `apply()`）。因此 `typecheck/` 的消费端断言 import `@tak1208/dsh-uistyle-template/client`；`dsh.client.external` 仍按 §1 假设 3 声明。
+> 3. **CSS Modules 构建插件自备**：官方把 `.module.css` 编译成「注入 `<style data-plugin-css>` + 导出 scoped 类名表」的 rolldown 插件**未随包发布**，故本库自写 `packages/uistyle/tools/css-modules.mjs`（复刻官方产物形态：虚拟模块 `\0dsh-css:<abs>.mjs`、`data-plugin` / `data-plugin-css` 去重、scoped 类名）。`.d.ts` 由 `tsc -p tsconfig.build.json` 产出（对齐 session-notification 先例），tsdown 只负责打包。
+> 4. **不声明 `peerDependencies: react`**：react / react-dom 由 shell 种子表在运行时提供（官方 primitives / renderer / session-notification 同样只放 devDependencies）；声明为 peer 会让 pnpm 往消费者 profile 自动装一份重复的 react。
+> 5. **§3.5 夹具槽位修正**：首版把整页 `Page` 组合注册进 `shell.overlay`（窗口级浮层，其单元格会把 occupant 拉伸到整帧），导致整页盒子遮住 UI 并吞掉指针事件；已改为 `settings.general.item`（正常文档流行），组件本身不含任何 `pointer-events` / `position` / 尺寸规则。
+> 6. **命令顺序**：`typecheck` 会先跑 `tsc -p tsconfig.build.json` 产出 `lib/types`，再对「发布面」做断言；故 `pnpm -r typecheck` / `pnpm -r verify` 不再依赖先前的手工 build。
 
 ## 1 需求与范围
 
@@ -184,24 +194,24 @@ export const tokenMeta: Readonly<Record<TokenName, TokenMeta>>;
 
 #### 3.1.1 建 pnpm workspace，迁移 token 工具链到库包
 
-- [ ] 根 `package.json` 改为私有 workspace 编排：`packageManager: pnpm`、scripts 聚合（`build`/`typecheck`/`verify` 转发到 `packages/uistyle`）
-- [ ] 新建 `pnpm-workspace.yaml`（`packages: ['packages/*']`）
-- [ ] 新建 `tsconfig.base.json`（`strict`、`lib: [ES2022, DOM]`、`jsx: react-jsx`、`moduleResolution: Bundler`）
-- [ ] 迁移 `tools/{extract-tokens,build-reference,gen-types}.mjs` → `packages/uistyle/tools/`，改输出路径为库包内
-- [ ] 迁移 `tools/verify-types.sh` → 库包内，路径改库内相对
-- [ ] 迁移 `typecheck/`、`tokens.json`、`usage.json`、`TOKENS.md` 到库包
-- [ ] 重跑生成，确认 `packages/uistyle/src/client/tokens.ts` 落地、427 token 数不变
+- [x] 根 `package.json` 改为私有 workspace 编排：`packageManager: pnpm`、scripts 聚合（`build`/`typecheck`/`verify` 转发到 `packages/uistyle`）
+- [x] 新建 `pnpm-workspace.yaml`（`packages: ['packages/*']`）
+- [x] 新建 `tsconfig.base.json`（`strict`、`lib: [ES2022, DOM]`、`jsx: react-jsx`、`moduleResolution: Bundler`）
+- [x] 迁移 `tools/{extract-tokens,build-reference,gen-types}.mjs` → `packages/uistyle/tools/`，改输出路径为库包内
+- [x] 迁移 `tools/verify-types.sh` → 库包内，路径改库内相对
+- [x] 迁移 `typecheck/`、`tokens.json`、`usage.json`、`TOKENS.md` 到库包
+- [x] 重跑生成，确认 `packages/uistyle/src/client/tokens.ts` 落地、427 token 数不变
 - **完成判据**：`pnpm -r build` 与 `pnpm -r verify` 在重组后仍通过；根目录不再残留 `tools/` `src/` `tokens.json` 等旧文件
 
 ### 3.2 库包骨架（build 能产出一个可被 serve 的空 client.js）
 
 #### 3.2.1 包元数据 + 极简 bundle patch + no-op Host 入口
 
-- [ ] `packages/uistyle/package.json`：`name: '@tak1208/dsh-uistyle-template'`、`type: module`、`exports`（`.`→`lib/index.js`、`./client`→`lib/client.js`、`./package.json`）、`dsh.bundle.patch: './cordis.patch.yml'`、`dsh.client: { platform: 'web' }`、peerDeps（react/react-dom/primitives）、devDeps（tsdown/typescript/@types/react/@types/react-dom/primitives）
-- [ ] `cordis.patch.yml`：`- insert: [{ id: dsh-uistyle-template, name: '@tak1208/dsh-uistyle-template' }]`
-- [ ] `src/index.ts`：`export function apply() {}`
-- [ ] `tsdown.config.ts`：client 入口 `src/client/index.ts` → `lib/client.js`，external `react*`、`react-dom*`、`@deepseek-ai/dsh-client-ui-primitives`
-- [ ] `src/client/index.ts` 暂只 re-export tokens
+- [x] `packages/uistyle/package.json`：`name: '@tak1208/dsh-uistyle-template'`、`type: module`、`exports`（`.`→`lib/index.js`、`./client`→`lib/client.js`、`./package.json`）、`dsh.bundle.patch: './cordis.patch.yml'`、`dsh.client: { platform: 'web' }`、peerDeps（react/react-dom/primitives）、devDeps（tsdown/typescript/@types/react/@types/react-dom/primitives）
+- [x] `cordis.patch.yml`：`- insert: [{ id: dsh-uistyle-template, name: '@tak1208/dsh-uistyle-template' }]`
+- [x] `src/index.ts`：`export function apply() {}`
+- [x] `tsdown.config.ts`：client 入口 `src/client/index.ts` → `lib/client.js`，external `react*`、`react-dom*`、`@deepseek-ai/dsh-client-ui-primitives`
+- [x] `src/client/index.ts` 暂只 re-export tokens
 - **完成判据**：`pnpm --filter @tak1208/dsh-uistyle-template build` 产出 `lib/client.js`，且产物里对 react/primitives 是 `require(...)` 而非内联（grep 验证）
 
 ### 3.3 组件层（内部并行：token 面 / 组件 / 类型契约各自独立）
@@ -210,35 +220,40 @@ export const tokenMeta: Readonly<Record<TokenName, TokenMeta>>;
 
 #### 3.3.1 布局组件（Agent A / B / C 并行）
 
-- [ ] **Agent A**：`src/client/components/Card.tsx` + `Card.module.css` — 卡片容器（title/subtitle/actions/padded）
-- [ ] **Agent B**：`src/client/components/{Page,Toolbar}.tsx` + 各自 `.module.css` — 页面区段 + 工具条
-- [ ] **Agent C**：`src/client/components/{Panel,Stack,SectionHeader}.tsx` + 各自 `.module.css` — 面板 + flex 布局 + 区块标题
-- [ ] 所有 CSS 一律走 `var(--dsw-*)` / `var(--ds-*)` token（从 `tokens.ts` 取名字），明暗自适应；不写死色值
-- [ ] `src/client/index.ts` 导出全部 6 个组件 + `types.ts` 里的类型
+- [x] **Agent A**：`src/client/components/Card.tsx` + `Card.module.css` — 卡片容器（title/subtitle/actions/padded）
+- [x] **Agent B**：`src/client/components/{Page,Toolbar}.tsx` + 各自 `.module.css` — 页面区段 + 工具条
+- [x] **Agent C**：`src/client/components/{Panel,Stack,SectionHeader}.tsx` + 各自 `.module.css` — 面板 + flex 布局 + 区块标题
+- [x] 所有 CSS 一律走 `var(--dsw-*)` / `var(--ds-*)` token（从 `tokens.ts` 取名字），明暗自适应；不写死色值
+- [x] `src/client/index.ts` 导出全部 6 个组件 + `types.ts` 里的类型
 - **完成判据**：`pnpm --filter @tak1208/dsh-uistyle-template typecheck` 通过；`src/client/index.ts` 的导出与 §2 冻结签名逐条一致
 
 ### 3.4 构建与类型产物打通
 
 #### 3.4.1 tsdown 产出可用 client.js + d.ts 类型
 
-- [ ] 确认 `lib/client.js` 为 `__ModuleLoader__.load` 工厂格式（对齐官方产物）
-- [ ] 确认 `lib/types/client/index.d.ts` 生成且被 `exports['./client'].types` 指向
-- [ ] 写一个最小消费端断言：`typecheck/` 里 import `@tak1208/dsh-uistyle-template`，用 §2 冻结签名调用全部组件与 token 函数
+- [x] 确认 `lib/client.js` 为 `__ModuleLoader__.load` 工厂格式（对齐官方产物）
+- [x] 确认 `lib/types/client/index.d.ts` 生成且被 `exports['./client'].types` 指向
+- [x] 写一个最小消费端断言：`typecheck/` 里 import `@tak1208/dsh-uistyle-template`，用 §2 冻结签名调用全部组件与 token 函数
 - **完成判据**：`pnpm --filter @tak1208/dsh-uistyle-template build && pnpm --filter @tak1208/dsh-uistyle-template verify` 全绿
 
 ### 3.5 运行时冒烟验证（本机真 DSH 加载）
 
 #### 3.5.1 极简 consumer 验证库能被宿主 serve 并 require
 
-- [ ] 在 profile（`~/.dsh/profiles/web`）临时把本库加入 `dsh.profile.bundles`（或以 `file:` 依赖 + bundles 加入），记录操作步骤
-- [ ] 写一个最小消费者入口（临时文件或独立小包）：`dsh.client.external: ['@tak1208/dsh-uistyle-template']`，`require('@tak1208/dsh-uistyle-template')` 后渲染一个 `Card` 到页面
-- [ ] 浏览器验证：库的 `client.js` 被 `/plugins` serve、无 "missing supplier"/cycle 报错、Card 正确渲染且跟随明暗主题
-- [ ] 冒烟通过后**回滚 profile 的临时改动**（不污染用户 profile）
+- [x] 在 profile（`~/.dsh/profiles/web`）临时把本库加入 `dsh.profile.bundles`（或以 `file:` 依赖 + bundles 加入），记录操作步骤
+- [x] 写一个最小消费者入口（临时文件或独立小包）：`dsh.client.external: ['@tak1208/dsh-uistyle-template']`，`require('@tak1208/dsh-uistyle-template')` 后渲染一个 `Card` 到页面
+- [x] 浏览器验证：库的 `client.js` 被 `/plugins` serve、无 "missing supplier"/cycle 报错、Card 正确渲染且跟随明暗主题
+- [x] 冒烟通过后**回滚 profile 的临时改动**（不污染用户 profile）
 - **完成判据**：真 DSH Web 页面出现库渲染的 Card，且控制台无模块图错误；profile 恢复原状
+- **操作步骤与结果（2026-10-02）**：
+  1. 备份 `~/.dsh/profiles/web/{package.json,cordis.patch.yml,pnpm-lock.yaml,pnpm-workspace.yaml}`；
+  2. `plugin_manager install_bundle` target = `packages/uistyle` 绝对目录 → `application: applied`、`warnings: []`（pnpm 以 `link:` 装入），Loader entry `include:dsh-uistyle-template` `fiberPhase: active`；
+  3. 同法装入临时 consumer `/tmp/dsh-uistyle-smoke`（`dsh.client.external: ['@tak1208/dsh-uistyle-template']`，`require('@tak1208/dsh-uistyle-template')`）：首版注册进 `shell.overlay`，人工目视确认组件与明暗正确，但整页 `Page` 被该浮层单元格拉伸成整帧盒子并吞掉指针事件（槽位用法错误，见「实现期修正」5）；改注册进 `settings.general.item` 后 `Slots.listSubTree` 显示 occupant `{id: uistyle-smoke, order: 99, active: true}`，人工目视确认 SectionHeader / Card / Stack 间距 / elevated Panel 布局正常；
+  4. 卸载两个 bundle：profile 四个文件与备份逐字节一致，Loader entries 由 200 回到 198，live slot 树不再有 `uistyle-smoke`，安装期新建的两个 `node_modules` 软链已删除。
 
 ### 3.6 收尾
 
 #### 3.6.1 回填 AGENTS.md 项目地图
 
-- [ ] 在 `AGENTS.md` 追加「项目地图」：目录树、模块职责、构建/验证命令、关键机制（扁平模块图、bundle+client 形态、external 依赖）
+- [x] 在 `AGENTS.md` 追加「项目地图」：目录树、模块职责、构建/验证命令、关键机制（扁平模块图、bundle+client 形态、external 依赖）
 - **完成判据**：AGENTS.md 的项目地图与实际目录树一致，命令可直接照抄执行

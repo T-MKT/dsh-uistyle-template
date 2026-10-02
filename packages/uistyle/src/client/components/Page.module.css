@@ -1,0 +1,64 @@
+/* Page is the outer frame: it owns the screen gutter and stacks the optional
+ * heading above the content. The `inner` column carries the caller's max-width
+ * (set inline) plus `margin: 0 auto`, so heading and body center together and
+ * never drift apart. Text colours are the only tokens needed; the surface
+ * itself stays transparent to inherit whatever layer the host paints. */
+.page {
+  box-sizing: border-box;
+  padding: 24px;
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  margin: 0 auto;
+}
+
+/* The heading block absorbs the free width and the actions keep their intrinsic
+ * size, which lands the actions on the right edge without `justify-content`. */
+.header {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* The page title is the largest text in the package: 20px/28px 600 is the DSH
+ * page-heading scale. h1 margins are reset so the header owns all spacing. */
+.title {
+  margin: 0;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+  color: var(--dsw-alias-label-primary);
+}
+
+.description {
+  margin: 0;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+/* `min-width: 0` lets wide content (tables, pre) scroll inside the column
+ * instead of stretching the page past its max-width. */
+.content {
+  min-width: 0;
+}

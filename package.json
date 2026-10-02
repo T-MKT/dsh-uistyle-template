@@ -4,16 +4,10 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@11.24.0",
-  "description": "Typed design-token surface for DSH Web UI plugins: extracts the tokens the shell ships and generates a checked TypeScript API",
+  "description": "Typed design-token surface and layout components for DSH Web UI plugins",
   "scripts": {
-    "extract": "node tools/extract-tokens.mjs",
-    "reference": "node tools/build-reference.mjs",
-    "gen": "node tools/gen-types.mjs",
-    "build": "pnpm run extract && pnpm run reference && pnpm run gen",
-    "typecheck": "tsc --noEmit",
-    "verify": "bash tools/verify-types.sh"
-  },
-  "devDependencies": {
-    "typescript": "~5.9.3"
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "verify": "pnpm -r verify"
   }
 }

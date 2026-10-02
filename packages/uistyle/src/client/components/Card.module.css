@@ -1,0 +1,63 @@
+/* Card is the package's base surface: one layer-1 panel with a hairline edge,
+ * an optional header (title / subtitle / actions) and a padded body that
+ * `padded={false}` flattens. Every colour and radius is a DSH token, so light
+ * and dark themes follow the shell without a single local override. */
+.card {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: var(--dsw-radius-lg);
+  background: var(--dsw-alias-bg-layer-1);
+  color: var(--dsw-alias-label-primary);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 0.5px solid var(--dsw-alias-border-l2);
+}
+
+/* Holds title over subtitle as one block; `min-width: 0` lets a long title
+ * ellipsize instead of pushing the actions out of the card. */
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.title {
+  font-size: 15px;
+  line-height: 24px;
+  font-weight: 600;
+  color: var(--dsw-alias-label-primary);
+}
+
+.subtitle {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.body {
+  padding: 16px;
+}
+
+/* Full-bleed callers (tables, scroll areas, embedded toolbars) remove the body
+ * inset only; the header keeps its own so the title stays aligned with the
+ * card edge. */
+.card[data-padded='false'] .body {
+  padding: 0;
+}

@@ -14,7 +14,7 @@ import {
   paletteTokens,
   semanticTokens,
   type TokenName,
-} from '../src/tokens.js';
+} from '@tak1208/dsh-uistyle-template/client';
 
 // The doc example that started this investigation.
 const labelPrimary = token('--dsw-alias-label-primary');

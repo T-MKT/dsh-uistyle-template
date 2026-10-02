@@ -1,0 +1,17 @@
+/* Panel is one hairline plus the layer-2 fill; elevation is its only visual
+ * knob, so `elevated` swaps a single token and nothing else. Padding is keyed
+ * off the data attribute so both states stay readable in one place. */
+.panel {
+  box-sizing: border-box;
+  background: var(--dsw-alias-bg-layer-2);
+  border-radius: var(--dsw-radius-lg);
+  box-shadow: var(--dsw-elevation-soft);
+}
+
+.panel[data-padded='true'] {
+  padding: 12px;
+}
+
+.panel[data-elevated='true'] {
+  box-shadow: var(--dsw-elevation-panel);
+}

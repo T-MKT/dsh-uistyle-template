@@ -45,10 +45,11 @@ fi
 echo "== 3. 对照组：一处拼写错误必须报错 =="
 probe=typecheck/.control-probe.ts
 cat > "$probe" <<'EOF'
-import { token } from '../src/tokens.js';
+import { token } from '../src/client/tokens.js';
 export const deliberatelyMisspelled = token('--dsw-alias-labl-primary');
 EOF
-if "$TSC" --noEmit --strict --target ES2022 --lib ES2022,DOM "$probe" >/tmp/verify-control.out 2>&1; then
+if "$TSC" --noEmit --strict --target ES2022 --lib ES2022,DOM \
+  --module esnext --moduleResolution bundler --skipLibCheck "$probe" >/tmp/verify-control.out 2>&1; then
   echo "   ❌ 对照组通过了 —— 类型检查是空转的，前两项结论无效"
   fail=1
 else

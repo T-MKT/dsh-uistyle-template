@@ -13,7 +13,7 @@
  *
  * So "tsc --noEmit passes" means typo detection works, not that it was skipped.
  */
-import { token, tokenStyle, setToken, tokenClass, tokenMeta, themeVaryingTokens, type TokenName } from '../src/tokens.js';
+import { token, tokenStyle, setToken, tokenClass, tokenMeta, themeVaryingTokens, type TokenName } from '@tak1208/dsh-uistyle-template/client';
 
 // --- 1. helper accessors -------------------------------------------------
 
