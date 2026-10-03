@@ -2,7 +2,17 @@
   "name": "@tak1208/dsh-uistyle-template",
   "version": "0.1.0",
   "description": "Typed design-token surface plus the layout compositions the DSH web UI lacks (Card, Page, Toolbar, Panel, Stack, SectionHeader)",
-  "private": true,
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "dsh-plugin",
+    "ui",
+    "design-tokens",
+    "css-variables",
+    "react",
+    "layout",
+    "components"
+  ],
   "type": "module",
   "license": "MIT",
   "exports": {
@@ -19,9 +29,19 @@
   "files": [
     "lib/index.js",
     "lib/client.js",
+    "lib/client.js.map",
     "lib/types/**/*.d.ts",
     "cordis.patch.yml"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/T-MKT/dsh-uistyle-template.git",
+    "directory": "packages/uistyle"
+  },
+  "homepage": "https://github.com/T-MKT/dsh-uistyle-template#readme",
+  "bugs": {
+    "url": "https://github.com/T-MKT/dsh-uistyle-template/issues"
+  },
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
@@ -36,6 +56,10 @@
     "build": "pnpm run tokens && pnpm run bundle",
     "typecheck": "tsc -p tsconfig.build.json && tsc -p tsconfig.json --noEmit",
     "verify": "bash tools/verify-types.sh"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   },
   "devDependencies": {
     "@types/react": "~18.3.1",
