@@ -25,9 +25,15 @@
 
 ## 接入（消费者插件）
 
-本库目前是**私有包**（`private: true`，尚未发布 npm），通过本地路径装入 profile：
+已发布到 npm：**[`@tak1208/dsh-uistyle-template`](https://www.npmjs.com/package/@tak1208/dsh-uistyle-template)**（`latest = 0.1.0`，public）。
 
-1. 在 DSH 会话里用插件管理器的 `install_bundle`，target 填**本仓库包目录的绝对路径**（`.../dsh-uistyle-template/packages/uistyle`），会以 `link:` 装入当前 profile；该包自带的 `cordis.patch.yml` 负责把 `dsh-uistyle-template` 插成一条 Loader entry。
+1. 在 DSH 会话里用插件管理器的 `install_bundle`，target 填包名（要锁版本就写 `@tak1208/dsh-uistyle-template@0.1.0`）：
+
+   ```text
+   @tak1208/dsh-uistyle-template
+   ```
+
+   该包自带的 `cordis.patch.yml` 会把它插成一条 Loader entry，并把包名写进 profile 的 `dsh.profile.bundles`。
 2. 你的插件 `package.json` 声明外部模块请求：
 
    ```json
@@ -50,6 +56,8 @@
    `<pkg>/client` 与裸包名由扁平模块图归一到同一行，两种写法等价。
 
 > **TypeScript 用户注意**：请 `import { Card } from '@tak1208/dsh-uistyle-template/client'`。裸包名的 `exports['.']` 指向 Host 半区（空的 `apply()`，只用于满足 bundle 行），只有 `./client` 子路径的 `types` 才是组件与 token 接口。
+
+> **想改本库本身**：先 `pnpm install && pnpm -r build`，再把 `install_bundle` 的 target 换成 `packages/uistyle` 的绝对路径 —— 会以 `link:` 装入，改完刷新页面即生效。
 
 ## 使用：布局组件
 
@@ -149,7 +157,7 @@ pnpm -r verify      # 三重验证：消费端断言 + 参与编译确认 + 对�
 
 ## 已知限制
 
-- 未发布 npm（`private: true`），只能本地路径 / `link:` 安装。
+- 当前仍是 `0.x`：按 semver 约定，`0.y.z` 的 API 不视为稳定，minor 升级可能包含破坏性变更 —— 升级前请读对应 Release 说明。
 - 不重做官方原子件（Button / Input / Menu / Modal / Toast / Tooltip … 直接用 primitives）。
 - 不做高复杂度数据件（Table / DataGrid / Select / DatePicker；`SettingsForm` 官方已有）。
 - token 只提供类型面与取值辅助，**不注入 CSS 变量定义**。

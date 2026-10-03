@@ -25,9 +25,15 @@ What it deliberately does not do: re-implement the official atoms; ship high-com
 
 ## Installing (consumer plugin)
 
-The package is currently **private** (`private: true`, not yet on npm), so it is installed from a local path:
+Published on npm: **[`@tak1208/dsh-uistyle-template`](https://www.npmjs.com/package/@tak1208/dsh-uistyle-template)** (`latest = 0.1.0`, public).
 
-1. In a DSH session, use the plugin manager's `install_bundle` with the **absolute path of this repository's package directory** (`.../dsh-uistyle-template/packages/uistyle`). It is installed with `link:` into the active profile, and the package's own `cordis.patch.yml` inserts the `dsh-uistyle-template` Loader entry.
+1. In a DSH session, use the plugin manager's `install_bundle` with the package name (add `@0.1.0` to pin the version):
+
+   ```text
+   @tak1208/dsh-uistyle-template
+   ```
+
+   The package's own `cordis.patch.yml` inserts its Loader entry and adds the name to the profile's `dsh.profile.bundles`.
 2. Declare the external module request in your plugin's `package.json`:
 
    ```json
@@ -50,6 +56,8 @@ The package is currently **private** (`private: true`, not yet on npm), so it is
    The flat module graph normalizes `<pkg>/client` and the bare package name onto the same row, so both specifiers resolve to the same exports.
 
 > **TypeScript users**: import from `'@tak1208/dsh-uistyle-template/client'`. The bare name's `exports['.']` points at the Host half (an empty `apply()` that only satisfies the bundle row); only the `./client` subpath's `types` expose the components and the token API.
+
+> **Working on this library itself**: run `pnpm install && pnpm -r build` first, then point `install_bundle` at the absolute path of `packages/uistyle` — it is installed with `link:`, so a reload picks up your changes.
 
 ## Using the layout components
 
@@ -149,7 +157,7 @@ The third check in `verify` is a **control group**: one deliberately misspelled 
 
 ## Known limitations
 
-- Not published to npm (`private: true`); install from a local path or `link:`.
+- Still `0.x`: per semver, the API of a `0.y.z` version is not considered stable and a minor bump may contain breaking changes — read the matching Release notes before upgrading.
 - Does not re-implement the official atoms (use the primitives for Button / Input / Menu / Modal / Toast / Tooltip …).
 - No high-complexity data widgets (Table / DataGrid / Select / DatePicker; `SettingsForm` already ships officially).
 - Tokens are a type surface and value helper only — this package **never injects CSS variable definitions**.
